@@ -1,6 +1,5 @@
 package abnod.ffiler.controller;
 
-import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
@@ -30,7 +29,6 @@ public class RenameController {
 
     public void actionRename(ActionEvent actionEvent) {
         Path selectedFile = MainController.getSelectedFile();
-        System.out.println(selectedFile.toString());
         if(!txtName.getCharacters().toString().equals(null) && !txtName.getCharacters().toString().equals("")){
             File checkFile = new File(selectedFile.getParent().toString()+"\\"+txtName.getCharacters().toString());
             System.out.println(checkFile);

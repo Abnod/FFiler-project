@@ -19,11 +19,14 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import org.codehaus.plexus.util.FileUtils;
 
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Optional;
 
 public class MainController {
 
@@ -155,6 +158,67 @@ public class MainController {
             }
     }
 
+    public void deleteEntries(ActionEvent actionEvent){
+        Button button = (Button) actionEvent.getSource();
+        switch (button.getId()){
+            case "btnDelete" : {
+                ObservableList<File> removeList = tableFiles.getSelectionModel().getSelectedItems();
+                if (!removeList.isEmpty() && removeList != null){
+                    Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                    alert.setTitle("Remove files");
+                    alert.setHeaderText("Are you sure?");
+                    alert.setContentText("Remove " + removeList.size() + "files?");
+
+                    Optional<ButtonType> result = alert.showAndWait();
+                    if (result.get() == ButtonType.OK){
+                        for(File file : removeList){
+                            try {
+                                FileUtils.deleteDirectory(file);
+                            } catch (IOException e) {
+                                Alert alert2 = new Alert(Alert.AlertType.ERROR);
+                                alert2.setTitle("Deletion Error");
+                                alert2.setHeaderText(null);
+                                alert2.setContentText("Not All files was deleted...");
+                                alert2.showAndWait();
+                            }
+                        }
+                        fillTable(tableFiles,lastPathFile);
+                    } else {
+                        alert.close();
+                    }
+                }
+                break;
+            }
+            case "btnDeleteRight" : {
+                ObservableList<File> removeList = tableFilesRight.getSelectionModel().getSelectedItems();
+                if (!removeList.isEmpty() && removeList != null){
+                    Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                    alert.setTitle("Remove files");
+                    alert.setHeaderText("Are you sure?");
+                    alert.setContentText("Remove " + removeList.size() + "files?");
+
+                    Optional<ButtonType> result = alert.showAndWait();
+                    if (result.get() == ButtonType.OK){
+                        for(File file : removeList){
+                            try {
+                                FileUtils.deleteDirectory(file);
+                            } catch (IOException e) {
+                                Alert alert2 = new Alert(Alert.AlertType.ERROR);
+                                alert2.setTitle("Deletion Error");
+                                alert2.setHeaderText(null);
+                                alert2.setContentText("Not All files was deleted...");
+                                alert2.showAndWait();
+                            }
+                        }
+                        fillTable(tableFilesRight,lastPathFileRight);
+                    } else {
+                        alert.close();
+                    }
+                }
+            }
+        }
+    }
+
     public void updateVolumes(ActionEvent actionEvent) {
         Button button = (Button) actionEvent.getSource();
         try{
@@ -278,10 +342,6 @@ public class MainController {
 
     public static ObservableList<File> getFilelistToUpdate(){
         return listToUpdate;
-    }
-
-    public static void setListToUpdate(ObservableList<File> listToUpdate) {
-        MainController.listToUpdate = listToUpdate;
     }
 
     public void updateList(ActionEvent actionEvent){

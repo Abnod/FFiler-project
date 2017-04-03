@@ -32,7 +32,7 @@
                   </ToolBar>
                   <ToolBar prefHeight="40.0" prefWidth="200.0" VBox.vgrow="NEVER">
                     <items>
-                        <ChoiceBox fx:id="cbVolumes" prefHeight="25.0" prefWidth="93.0" />
+                        <ChoiceBox fx:id="cbVolumes" prefHeight="25.0" prefWidth="60.0" />
                       <Button fx:id="btnVolume" mnemonicParsing="false" onAction="#updateVolumes" text="Select" />
                         <Separator orientation="VERTICAL" prefHeight="28.0" prefWidth="0.0" />
                         <Button fx:id="btnBack" mnemonicParsing="false" onAction="#upperDir" text="Back" />
@@ -40,6 +40,7 @@
                         <Separator layoutX="159.0" layoutY="10.0" orientation="VERTICAL" prefHeight="28.0" prefWidth="0.0" />
                         <Button fx:id="btnAdd" mnemonicParsing="false" onAction="#buttonAction" text="new Folder" />
                         <Button fx:id="btnRename" layoutX="179.0" layoutY="12.0" mnemonicParsing="false" onAction="#buttonAction" text="Rename" />
+                        <Button fx:id="btnDelete" layoutX="330.0" layoutY="13.0" mnemonicParsing="false" onAction="#deleteEntries" text="Delete" />
                     </items>
                   </ToolBar>
                </children>
@@ -97,7 +98,7 @@
                   <ToolBar prefHeight="40.0" prefWidth="200.0" VBox.vgrow="NEVER" />
                   <ToolBar prefHeight="40.0" prefWidth="200.0" VBox.vgrow="NEVER">
                      <items>
-                        <ChoiceBox fx:id="cbVolumesRight" prefHeight="25.0" prefWidth="93.0" />
+                        <ChoiceBox fx:id="cbVolumesRight" prefHeight="25.0" prefWidth="60.0" />
                         <Button fx:id="btnVolumeRight" mnemonicParsing="false" onAction="#updateVolumes" text="Select" />
                         <Separator orientation="VERTICAL" prefHeight="28.0" prefWidth="0.0" />
                         <Button fx:id="btnBackRight" mnemonicParsing="false" onAction="#upperDir" text="Back" />
@@ -105,6 +106,7 @@
                         <Separator layoutX="159.0" layoutY="10.0" orientation="VERTICAL" prefHeight="28.0" prefWidth="0.0" />
                         <Button fx:id="btnAddRight" mnemonicParsing="false" onAction="#buttonAction" text="new Folder" />
                         <Button fx:id="btnRenameRight" layoutX="179.0" layoutY="12.0" mnemonicParsing="false" onAction="#buttonAction" text="Rename" />
+                        <Button fx:id="btnDeleteRight" mnemonicParsing="false" onAction="#deleteEntries" text="Delete" />
                      </items>
                   </ToolBar>
                </children>
