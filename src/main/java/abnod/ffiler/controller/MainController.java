@@ -23,7 +23,6 @@ import javafx.stage.Stage;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 
 public class MainController {
@@ -37,6 +36,7 @@ public class MainController {
     private File lastPathFileRight;
     private static File foldertoCreate;
     private static ObservableList<File> listToUpdate;
+    public static Path selectedFile;
 
     @FXML
     private TableView tableFiles;
@@ -118,14 +118,14 @@ public class MainController {
             switch (button.getId()) {
                 case "btnAdd": {
                     setFoldertoCreate(lastPathFile);
-                    setListToUpdate(filesList);
-                    dialogWindow(actionEvent, "../fxml/AddFrame.fxml", "Create newfolder");
+                    dialogWindow(actionEvent, "/fxml/AddFrame.fxml", "Create newfolder");
+                    fillTable(tableFiles, lastPathFile);
                     break;
                 }
                 case "btnAddRight": {
                     setFoldertoCreate(lastPathFileRight);
-                    setListToUpdate(filesListRight);
-                    dialogWindow(actionEvent, "../fxml/AddFrame.fxml", "Create newfolder");
+                    dialogWindow(actionEvent, "/fxml/AddFrame.fxml", "Create newfolder");
+                    fillTable(tableFilesRight, lastPathFileRight);
                     break;
                 }
                 case "btnUpdate" : {
@@ -137,15 +137,19 @@ public class MainController {
                     break;
                 }
                 case "btnRename": {
-                    dialogWindow(actionEvent,"../fxml/RenameFrame.fxml","Rename file or folder");
-                   // Path selectedFile = ((File) tableFiles.getSelectionModel().getSelectedItem()).toPath();
-                   // Files.move(selectedFile, selectedFile.resolveSibling(""));
-                    //System.out.println(selectedFile.getName() " " + selectedFile.length());
+                    if(tableFiles.getSelectionModel().getSelectedItem() !=null){
+                        setSelectedFile(((File) tableFiles.getSelectionModel().getSelectedItem()).toPath());
+                        dialogWindow(actionEvent,"/fxml/RenameFrame.fxml","Rename file or folder");
+                        fillTable(tableFiles, lastPathFile);
+                    }
                     break;
                 }
                 case "btnRenameRight": {
-                    File selectedFile = (File) tableFilesRight.getSelectionModel().getSelectedItem();
-                    System.out.println(selectedFile.getName() + selectedFile.length());
+                    if(tableFilesRight.getSelectionModel().getSelectedItem() !=null){
+                        setSelectedFile(((File) tableFilesRight.getSelectionModel().getSelectedItem()).toPath());
+                        dialogWindow(actionEvent,"/fxml/RenameFrame.fxml","Rename file or folder");
+                        fillTable(tableFilesRight, lastPathFileRight);
+                    }
                     break;
                 }
             }
@@ -266,7 +270,7 @@ public class MainController {
             stage.setScene(new Scene(root));
             stage.initModality(Modality.WINDOW_MODAL);
             stage.initOwner(((Node)actionEvent.getSource()).getScene().getWindow());
-            stage.show();
+            stage.showAndWait();
         } catch (IOException e){
             e.printStackTrace();
         }
@@ -307,5 +311,13 @@ public class MainController {
                 break;
             }
         }
+    }
+
+    public static Path getSelectedFile() {
+        return selectedFile;
+    }
+
+    public static void setSelectedFile(Path selectedFile) {
+        MainController.selectedFile = selectedFile;
     }
 }

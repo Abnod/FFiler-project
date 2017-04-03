@@ -14,7 +14,7 @@ public class Main extends Application {
         primaryStage.setTitle("FFiler 0.01a");
         primaryStage.setMinWidth(1024);
         primaryStage.setMinHeight(800);
-        primaryStage.setScene(new Scene(root, 800, 600));
+        primaryStage.setScene(new Scene(root, 1400, 800));
         primaryStage.show();
     }
 
