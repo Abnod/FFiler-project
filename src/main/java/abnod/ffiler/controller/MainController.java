@@ -24,8 +24,9 @@ import org.codehaus.plexus.util.FileUtils;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.EnumSet;
 import java.util.Optional;
 
 public class MainController {
@@ -38,7 +39,6 @@ public class MainController {
     private File lastPathFile;
     private File lastPathFileRight;
     private static File foldertoCreate;
-    private static ObservableList<File> listToUpdate;
     public static Path selectedFile;
 
     @FXML
@@ -173,7 +173,8 @@ public class MainController {
                     if (result.get() == ButtonType.OK){
                         for(File file : removeList){
                             try {
-                                FileUtils.deleteDirectory(file);
+                                if(file.isDirectory()){FileUtils.deleteDirectory(file);}
+                                else if(file.isFile()){FileUtils.fileDelete(file.toString());}
                             } catch (IOException e) {
                                 Alert alert2 = new Alert(Alert.AlertType.ERROR);
                                 alert2.setTitle("Deletion Error");
@@ -201,12 +202,13 @@ public class MainController {
                     if (result.get() == ButtonType.OK){
                         for(File file : removeList){
                             try {
-                                FileUtils.deleteDirectory(file);
+                                if(file.isDirectory()){FileUtils.deleteDirectory(file);}
+                                else if(file.isFile()){FileUtils.fileDelete(file.toString());}
                             } catch (IOException e) {
                                 Alert alert2 = new Alert(Alert.AlertType.ERROR);
                                 alert2.setTitle("Deletion Error");
                                 alert2.setHeaderText(null);
-                                alert2.setContentText("Not All files was deleted...");
+                                alert2.setContentText("Not all files have been deleted...");
                                 alert2.showAndWait();
                             }
                         }
@@ -215,6 +217,7 @@ public class MainController {
                         alert.close();
                     }
                 }
+                break;
             }
         }
     }
@@ -340,10 +343,6 @@ public class MainController {
         }
     }
 
-    public static ObservableList<File> getFilelistToUpdate(){
-        return listToUpdate;
-    }
-
     public void updateList(ActionEvent actionEvent){
         Button button = (Button) actionEvent.getSource();
         switch (button.getId()) {
@@ -379,5 +378,111 @@ public class MainController {
 
     public static void setSelectedFile(Path selectedFile) {
         MainController.selectedFile = selectedFile;
+    }
+
+    public void copyEntries(ActionEvent actionEvent){
+        Button button = (Button) actionEvent.getSource();
+
+        switch (button.getId()){
+            case "btnCopy" : {
+                ObservableList<File> copyList = tableFiles.getSelectionModel().getSelectedItems();
+                copy(copyList, lastPathFile, lastPathFileRight);
+                fillTable(tableFilesRight, lastPathFileRight);
+                break;
+            }
+            case "btnCopyRight" : {
+                ObservableList<File> copyList = tableFilesRight.getSelectionModel().getSelectedItems();
+                copy(copyList, lastPathFileRight, lastPathFile);
+                fillTable(tableFiles, lastPathFile);
+                break;
+            }
+        }
+    }
+
+    private void copy(ObservableList<File> list, File pathFrom, File pathTo){
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Confirm Copying");
+        alert.setHeaderText("Prepare to copy " + list.size() + " objects from " + pathFrom + " to " + pathTo);
+        alert.setContentText("Choose copy mode option.");
+
+        ButtonType buttonTypeOne = new ButtonType("Keep existing files");
+        ButtonType buttonTypeTwo = new ButtonType("Override existing files");
+        ButtonType buttonTypeCancel = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
+
+        alert.getButtonTypes().setAll(buttonTypeOne, buttonTypeTwo, buttonTypeCancel);
+
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.get() == buttonTypeOne){
+            for(File sourceFile : list){
+                File checkFile = new File (pathTo.toString() + "\\" + sourceFile.getName());
+                if(!checkFile.exists()){
+                    try {
+                        Files.walkFileTree(sourceFile.toPath(), EnumSet.of(FileVisitOption.FOLLOW_LINKS), Integer.MAX_VALUE,
+                                new SimpleFileVisitor<Path>() {
+                                    @Override
+                                    public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException  {
+                                        Path target = checkFile.toPath().resolve(sourceFile.toPath().relativize(dir));
+                                        try {
+                                            Files.copy(dir, target);
+                                        } catch (FileAlreadyExistsException e) {
+                                            if (!Files.isDirectory(target))
+                                                throw e;
+                                        }
+                                        return FileVisitResult.CONTINUE;
+                                    }
+                                    @Override
+                                    public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                                        Files.copy(file, checkFile.toPath().resolve(sourceFile.toPath().relativize(file)));
+                                        return FileVisitResult.CONTINUE;
+                                    }
+                                });
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        Alert alert2 = new Alert(Alert.AlertType.ERROR);
+                        alert2.setTitle("Copy Error");
+                        alert2.setHeaderText(null);
+                        alert2.setContentText("Some files were not copied...");
+                        alert2.showAndWait();
+                    }
+                }
+            }
+        } else if (result.get() == buttonTypeTwo) {
+            for(File sourceFile : list){
+                System.out.println("file"+sourceFile);
+                File checkFile = new File (pathTo.toString() + "\\" + sourceFile.getName());
+                System.out.println("check"+checkFile);
+                try {
+                    Files.walkFileTree(sourceFile.toPath(), EnumSet.of(FileVisitOption.FOLLOW_LINKS), Integer.MAX_VALUE,
+                            new SimpleFileVisitor<Path>() {
+                                @Override
+                                public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException  {
+                                    Path target = checkFile.toPath().resolve(sourceFile.toPath().relativize(dir));
+                                    System.out.println("target"+target);
+                                    System.out.println("dir"+dir);
+                                    try {
+                                        Files.copy(dir, target);
+                                    } catch (FileAlreadyExistsException e) {
+                                        if (!Files.isDirectory(target))
+                                            throw e;
+                                    }
+                                    return FileVisitResult.CONTINUE;
+                                }
+                                @Override
+                                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                                    Files.copy(file, checkFile.toPath().resolve(sourceFile.toPath().relativize(file)));
+                                    return FileVisitResult.CONTINUE;
+                                }
+                            });
+                    } catch (IOException e) {
+                        Alert alert2 = new Alert(Alert.AlertType.ERROR);
+                        alert2.setTitle("Copy Error");
+                        alert2.setHeaderText(null);
+                        alert2.setContentText("Some files were not copied...");
+                        alert2.showAndWait();
+                    }
+            }
+        } else {
+            alert.close();
+        }
     }
 }

@@ -32,8 +32,6 @@ public class AddController {
         File dirrectory = new File(folderName);
         if(!dirrectory.exists()){
             dirrectory.mkdir();
-            //ObservableList<File> update = MainController.getFilelistToUpdate();
-            //update.add(dirrectory);
             Node node = (Node) actionEvent.getSource();
             Stage stage = (Stage) node.getScene().getWindow();
             stage.close();}

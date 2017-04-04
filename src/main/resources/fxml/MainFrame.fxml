@@ -41,6 +41,7 @@
                         <Button fx:id="btnAdd" mnemonicParsing="false" onAction="#buttonAction" text="new Folder" />
                         <Button fx:id="btnRename" layoutX="179.0" layoutY="12.0" mnemonicParsing="false" onAction="#buttonAction" text="Rename" />
                         <Button fx:id="btnDelete" layoutX="330.0" layoutY="13.0" mnemonicParsing="false" onAction="#deleteEntries" text="Delete" />
+                        <Button fx:id="btnCopy" layoutX="393.0" layoutY="13.0" mnemonicParsing="false" onAction="#copyEntries" text="Copy" />
                     </items>
                   </ToolBar>
                </children>
@@ -107,6 +108,7 @@
                         <Button fx:id="btnAddRight" mnemonicParsing="false" onAction="#buttonAction" text="new Folder" />
                         <Button fx:id="btnRenameRight" layoutX="179.0" layoutY="12.0" mnemonicParsing="false" onAction="#buttonAction" text="Rename" />
                         <Button fx:id="btnDeleteRight" mnemonicParsing="false" onAction="#deleteEntries" text="Delete" />
+                        <Button fx:id="btnCopyRight" mnemonicParsing="false" onAction="#copyEntries" text="Copy" />
                      </items>
                   </ToolBar>
                </children>
