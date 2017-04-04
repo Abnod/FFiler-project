@@ -176,11 +176,7 @@ public class MainController {
                                 if(file.isDirectory()){FileUtils.deleteDirectory(file);}
                                 else if(file.isFile()){FileUtils.fileDelete(file.toString());}
                             } catch (IOException e) {
-                                Alert alert2 = new Alert(Alert.AlertType.ERROR);
-                                alert2.setTitle("Deletion Error");
-                                alert2.setHeaderText(null);
-                                alert2.setContentText("Not All files was deleted...");
-                                alert2.showAndWait();
+                                errorWindow("Deletion Error", null, "Not all files have been deleted...");
                             }
                         }
                         fillTable(tableFiles,lastPathFile);
@@ -205,11 +201,7 @@ public class MainController {
                                 if(file.isDirectory()){FileUtils.deleteDirectory(file);}
                                 else if(file.isFile()){FileUtils.fileDelete(file.toString());}
                             } catch (IOException e) {
-                                Alert alert2 = new Alert(Alert.AlertType.ERROR);
-                                alert2.setTitle("Deletion Error");
-                                alert2.setHeaderText(null);
-                                alert2.setContentText("Not all files have been deleted...");
-                                alert2.showAndWait();
+                                errorWindow("Deletion Error", null, "Not all files have been deleted...");
                             }
                         }
                         fillTable(tableFilesRight,lastPathFileRight);
@@ -229,12 +221,14 @@ public class MainController {
                 case "btnVolume" : {
                     filesList = fileListClass.getFiles((File) cbVolumes.getValue());
                     tableFiles.setItems(filesList);
+                    lastPathFile = (File)cbVolumes.getValue();
                     currentPath.setText(cbVolumes.getValue().toString());
                     break;
                 }
                 case "btnVolumeRight" :{
                     filesListRight = fileListClassRight.getFiles((File) cbVolumesRight.getValue());
                     tableFilesRight.setItems(filesListRight);
+                    lastPathFileRight = (File) cbVolumesRight.getValue();
                     currentPathRight.setText(cbVolumesRight.getValue().toString());
                     break;
                 }
@@ -249,7 +243,7 @@ public class MainController {
         }
     }
 
-    public void updateCountLabel(Label label, ObservableList<File> filesList) {
+    private void updateCountLabel(Label label, ObservableList<File> filesList) {
             label.setText("Object in directory: " + filesList.size());
     }
 
@@ -278,7 +272,7 @@ public class MainController {
         }
     }
 
-    public void navigateFiles(TableView tableView, ObservableList<File> observableList, FileListClass fileListClass) throws IOException {
+    private void navigateFiles(TableView tableView, ObservableList<File> observableList, FileListClass fileListClass) throws IOException {
         File selectedFile = (File) tableView.getSelectionModel().getSelectedItem();
         if(selectedFile.isFile()){
             Desktop.getDesktop().open(selectedFile);
@@ -322,11 +316,11 @@ public class MainController {
         return foldertoCreate;
     }
 
-    public static void setFoldertoCreate(File foldertoCreate) {
+    private static void setFoldertoCreate(File foldertoCreate) {
         MainController.foldertoCreate = foldertoCreate;
     }
 
-    public void dialogWindow(ActionEvent actionEvent, String pathToFxml, String titleText){
+    private void dialogWindow(ActionEvent actionEvent, String pathToFxml, String titleText){
         try{
             Stage stage = new Stage();
             Parent root = FXMLLoader.load(getClass().getResource(pathToFxml));
@@ -357,7 +351,7 @@ public class MainController {
         }
     }
 
-    public void fillTable(TableView tableView, File file){
+    private void fillTable(TableView tableView, File file){
         switch (tableView.getId()){
             case "tableFiles" : {
                 filesList = fileListClass.getFiles(file);
@@ -376,7 +370,7 @@ public class MainController {
         return selectedFile;
     }
 
-    public static void setSelectedFile(Path selectedFile) {
+    private static void setSelectedFile(Path selectedFile) {
         MainController.selectedFile = selectedFile;
     }
 
@@ -437,28 +431,19 @@ public class MainController {
                                     }
                                 });
                     } catch (IOException e) {
-                        e.printStackTrace();
-                        Alert alert2 = new Alert(Alert.AlertType.ERROR);
-                        alert2.setTitle("Copy Error");
-                        alert2.setHeaderText(null);
-                        alert2.setContentText("Some files were not copied...");
-                        alert2.showAndWait();
+                        errorWindow("Copy Error", null, "Some files were not copied...");
                     }
                 }
             }
         } else if (result.get() == buttonTypeTwo) {
             for(File sourceFile : list){
-                System.out.println("file"+sourceFile);
                 File checkFile = new File (pathTo.toString() + "\\" + sourceFile.getName());
-                System.out.println("check"+checkFile);
                 try {
                     Files.walkFileTree(sourceFile.toPath(), EnumSet.of(FileVisitOption.FOLLOW_LINKS), Integer.MAX_VALUE,
                             new SimpleFileVisitor<Path>() {
                                 @Override
                                 public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException  {
                                     Path target = checkFile.toPath().resolve(sourceFile.toPath().relativize(dir));
-                                    System.out.println("target"+target);
-                                    System.out.println("dir"+dir);
                                     try {
                                         Files.copy(dir, target);
                                     } catch (FileAlreadyExistsException e) {
@@ -474,15 +459,116 @@ public class MainController {
                                 }
                             });
                     } catch (IOException e) {
-                        Alert alert2 = new Alert(Alert.AlertType.ERROR);
-                        alert2.setTitle("Copy Error");
-                        alert2.setHeaderText(null);
-                        alert2.setContentText("Some files were not copied...");
-                        alert2.showAndWait();
+                        errorWindow("Copy Error", null, "Some files were not copied...");
                     }
             }
         } else {
             alert.close();
         }
+    }
+
+    public void moveEntries(ActionEvent actionEvent){
+        Button button = (Button) actionEvent.getSource();
+
+        switch (button.getId()){
+            case "btnMove" : {
+                ObservableList<File> copyList = tableFiles.getSelectionModel().getSelectedItems();
+                move(copyList, lastPathFile, lastPathFileRight);
+                break;
+            }
+            case "btnMoveRight" : {
+                ObservableList<File> copyList = tableFilesRight.getSelectionModel().getSelectedItems();
+                move(copyList, lastPathFileRight, lastPathFile);
+                break;
+            }
+        }
+        fillTable(tableFilesRight, lastPathFileRight);
+        fillTable(tableFiles, lastPathFile);
+    }
+
+    private void move(ObservableList<File> list, File pathFrom, File pathTo){
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Confirm Move");
+        alert.setHeaderText("Prepare to move " + list.size() + " objects from " + pathFrom + " to " + pathTo);
+        alert.setContentText("Choose moving mode option.");
+
+        ButtonType buttonTypeOne = new ButtonType("Keep existing files");
+        ButtonType buttonTypeTwo = new ButtonType("Override existing files");
+        ButtonType buttonTypeCancel = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
+
+        alert.getButtonTypes().setAll(buttonTypeOne, buttonTypeTwo, buttonTypeCancel);
+
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.get() == buttonTypeOne){
+            for(File sourceFile : list){
+                File checkFile = new File (pathTo.toString() + "\\" + sourceFile.getName());
+                if(!checkFile.exists()){
+                    try {
+                        Files.walkFileTree(sourceFile.toPath(), EnumSet.of(FileVisitOption.FOLLOW_LINKS), Integer.MAX_VALUE,
+                                new SimpleFileVisitor<Path>() {
+                                    @Override
+                                    public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException  {
+                                        Path target = checkFile.toPath().resolve(sourceFile.toPath().relativize(dir));
+                                        try {
+                                            Files.copy(dir, target);
+                                        } catch (FileAlreadyExistsException e) {
+                                            if (!Files.isDirectory(target))
+                                                throw e;
+                                        }
+                                        return FileVisitResult.CONTINUE;
+                                    }
+                                    @Override
+                                    public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                                        Files.copy(file, checkFile.toPath().resolve(sourceFile.toPath().relativize(file)));
+                                        return FileVisitResult.CONTINUE;
+                                    }
+                                });
+                        if(sourceFile.isDirectory()){FileUtils.deleteDirectory(sourceFile);}
+                        else if(sourceFile.isFile()){FileUtils.fileDelete(sourceFile.toString());}
+                    } catch (IOException e) {
+                        errorWindow("Move Error", null, "Some files were not moved...");
+                    }
+                }
+            }
+        } else if (result.get() == buttonTypeTwo) {
+            for(File sourceFile : list){
+                File checkFile = new File (pathTo.toString() + "\\" + sourceFile.getName());
+                try {
+                    Files.walkFileTree(sourceFile.toPath(), EnumSet.of(FileVisitOption.FOLLOW_LINKS), Integer.MAX_VALUE,
+                            new SimpleFileVisitor<Path>() {
+                                @Override
+                                public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException  {
+                                    Path target = checkFile.toPath().resolve(sourceFile.toPath().relativize(dir));
+                                    try {
+                                        Files.copy(dir, target);
+                                    } catch (FileAlreadyExistsException e) {
+                                        if (!Files.isDirectory(target))
+                                            throw e;
+                                    }
+                                    return FileVisitResult.CONTINUE;
+                                }
+                                @Override
+                                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                                    Files.copy(file, checkFile.toPath().resolve(sourceFile.toPath().relativize(file)));
+                                    return FileVisitResult.CONTINUE;
+                                }
+                            });
+                    if(sourceFile.isDirectory()){FileUtils.deleteDirectory(sourceFile);}
+                    else if(sourceFile.isFile()){FileUtils.fileDelete(sourceFile.toString());}
+                } catch (IOException e) {
+                    errorWindow("Move Error", null, "Some files were not moved...");
+                }
+            }
+        } else {
+            alert.close();
+        }
+    }
+
+    private void errorWindow(String title, String header, String text){
+        Alert alert2 = new Alert(Alert.AlertType.ERROR);
+        alert2.setTitle(title);
+        alert2.setHeaderText(header);
+        alert2.setContentText(text);
+        alert2.showAndWait();
     }
 }

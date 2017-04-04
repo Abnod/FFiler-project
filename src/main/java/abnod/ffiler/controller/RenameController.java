@@ -31,7 +31,6 @@ public class RenameController {
         Path selectedFile = MainController.getSelectedFile();
         if(!txtName.getCharacters().toString().equals(null) && !txtName.getCharacters().toString().equals("")){
             File checkFile = new File(selectedFile.getParent().toString()+"\\"+txtName.getCharacters().toString());
-            System.out.println(checkFile);
             if(!checkFile.exists()){
                 try {
                     Files.move(selectedFile, selectedFile.resolveSibling(txtName.getCharacters().toString()));
