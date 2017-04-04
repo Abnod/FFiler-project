@@ -28,6 +28,7 @@
                   <ToolBar prefHeight="40.0" prefWidth="200.0" VBox.vgrow="NEVER">
                     <items>
                       <Button fx:id="btnExit" mnemonicParsing="false" onAction="#closeProgram" text="Exit Program" />
+                        <Separator orientation="VERTICAL" prefHeight="30.0" prefWidth="0.0" />
                     </items>
                   </ToolBar>
                   <ToolBar prefHeight="40.0" prefWidth="200.0" VBox.vgrow="NEVER">

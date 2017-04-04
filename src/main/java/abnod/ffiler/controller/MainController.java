@@ -65,6 +65,14 @@ public class MainController {
     private TextField currentPath;
     @FXML
     private TextField currentPathRight;
+    @FXML
+    private Button btnMove;
+    @FXML
+    private Button btnMoveRight;
+    @FXML
+    private Button btnCopy;
+    @FXML
+    private Button btnCopyRight;
 
     @FXML
     public void initialize(){
@@ -380,14 +388,18 @@ public class MainController {
         switch (button.getId()){
             case "btnCopy" : {
                 ObservableList<File> copyList = tableFiles.getSelectionModel().getSelectedItems();
+                btnCopy.setText("Copying...");
                 copy(copyList, lastPathFile, lastPathFileRight);
                 fillTable(tableFilesRight, lastPathFileRight);
+                btnCopy.setText("Copy");
                 break;
             }
             case "btnCopyRight" : {
                 ObservableList<File> copyList = tableFilesRight.getSelectionModel().getSelectedItems();
+                btnCopyRight.setText("Copying...");
                 copy(copyList, lastPathFileRight, lastPathFile);
                 fillTable(tableFiles, lastPathFile);
+                btnCopyRight.setText("Copy");
                 break;
             }
         }
@@ -473,12 +485,16 @@ public class MainController {
         switch (button.getId()){
             case "btnMove" : {
                 ObservableList<File> copyList = tableFiles.getSelectionModel().getSelectedItems();
+                btnMove.setText("Moving...");
                 move(copyList, lastPathFile, lastPathFileRight);
+                btnCopy.setText("Move");
                 break;
             }
             case "btnMoveRight" : {
                 ObservableList<File> copyList = tableFilesRight.getSelectionModel().getSelectedItems();
+                btnMoveRight.setText("Moving...");
                 move(copyList, lastPathFileRight, lastPathFile);
+                btnCopy.setText("Move");
                 break;
             }
         }
